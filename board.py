@@ -10,7 +10,7 @@ BLACK = 1
 WHITE = -1
 EMPTY = 0
 
-PROFONDEUR = 3
+PROFONDEUR = 42
 
 pass_move = SIZE * SIZE
 
@@ -496,6 +496,7 @@ def minimax_tr(board, player, depth, table = {}):
 
         return min_score
 
+# Player vs Minimax_tr or Random vs Minimax_tr
 def main3(PROFONDEUR):
 
     b = init_board()
@@ -574,5 +575,144 @@ def main3(PROFONDEUR):
         else:
             print('BLACK wins!')
 
-main3(PROFONDEUR)
+def alphabeta(board, player, depth, alpha = -sys.maxsize, beta = sys.maxsize):
+
+    if depth == 0:
+
+        return evaluate(board)
+
+    if terminal(board):
+    
+        if winner(board) == BLACK:
+            return 100
+
+        else:
+            return -100
+        
+    if player == BLACK:
+
+        max_score = -sys.maxsize
+        L = legal_moves(board, BLACK)
+
+        if len(L) == 0:
+
+            max_score = alphabeta(board, WHITE, depth, alpha, beta)
+
+        else:
+
+            for move in L:
+                board1 = play(board, move, BLACK)
+
+                score = alphabeta(board1, WHITE, depth, alpha, beta)
+                max_score = max(max_score, score)
+                alpha = max(alpha, score)
+
+                if beta <= alpha:
+                    break
+
+        return max_score
+
+    else:
+
+        min_score = sys.maxsize
+        L = legal_moves(board, WHITE)
+
+        if len(L) == 0:
+
+            min_score = alphabeta(board, BLACK, depth, alpha, beta)
+
+        else:
+
+            for move in L:
+                board1 = play(board, move, WHITE)
+
+                score = alphabeta(board1, BLACK, depth - 1, alpha, beta)
+                min_score = min(min_score, score)
+                beta = min(beta, score)
+
+                if beta <= alpha:
+                    break
+
+        return min_score
+
+def main4(PROFONDEUR):
+
+    b = init_board()
+    rand = int(input("Type 1 for a match between human and alphabeta, 2 for a match between random player and alphabeta"))
+
+    if rand == 1:
+        print("Player BLACK (human) begins:")
+        print_board(b)
+
+        while(not terminal(b)):
+            playy = human(b, BLACK)
+            b = play(b, playy, BLACK)
+            print_board(b)
+
+            if terminal(b):
+                break
+
+            t = time.process_time()
+
+            plays = legal_moves(b, WHITE)
+            best_val = float("inf")
+            
+            for playy in plays:
+                b1 = play(b, playy, WHITE)
+                move_val = alphabeta(b1, WHITE, PROFONDEUR)
+
+                if move_val < best_val:
+                    best_move = playy
+                    best_val = move_val
+
+            elapsed_time = time.process_time() - t
+            print(f'It took {elapsed_time} to choose the alphabeta move')
+
+            b = play(b, best_move, WHITE)
+            print_board(b)
+
+        won = winner(b)
+        if won == -1:
+            print('WHITE wins!')
+        else:
+            print('BLACK wins!')
+
+    else:
+        print_board(b)
+
+        while(not terminal(b)):
+            playy = alea(b, BLACK)
+            b = play(b, playy, BLACK)
+            print_board(b)
+
+            if terminal(b):
+                break
+
+            t = time.process_time()
+
+            plays = legal_moves(b, WHITE)
+            best_val = float("inf")
+            
+            for playy in plays:
+                b1 = play(b, playy, WHITE)
+                move_val = alphabeta(b1, WHITE, PROFONDEUR)
+
+                if move_val < best_val:
+                    best_move = playy
+                    best_val = move_val
+
+            elapsed_time = time.process_time() - t
+            print(f'It took {elapsed_time} to choose the alphabeta move')
+
+            b = play(b, best_move, WHITE)
+            print_board(b)
+
+        won = winner(b)
+        if won == -1:
+            print('WHITE wins!')
+        else:
+            print('BLACK wins!')
+
+
+main4(PROFONDEUR)
 
